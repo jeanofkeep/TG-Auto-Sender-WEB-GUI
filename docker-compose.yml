@@ -1,0 +1,30 @@
+services:
+
+  backend:
+    build: ./backend
+    container_name: tg_sender_backend
+    restart: unless-stopped
+    environment:
+      TELEGRAM_API_ID: "${TELEGRAM_API_ID}"
+      TELEGRAM_API_HASH: "${TELEGRAM_API_HASH}"
+      TELEGRAM_SESSION: "${TELEGRAM_SESSION:-}"
+      ADMIN_LOGIN: "${ADMIN_LOGIN:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-changeme}"
+    volumes:
+      - ./sessions:/app/sessions
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/me"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: tg_sender_frontend
+    restart: unless-stopped
+    ports:
+      - "4446:80"
+    depends_on:
+      - backend
+
+volumes: {}
